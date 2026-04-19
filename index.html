@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naga Sai Chandra Prasad — Digital Lead & Web Strategist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0b0f;
+    --cream: #f5f0e8;
+    --amber: #e8a94d;
+    --ember: #c45e2e;
+    --violet: #3a2d5c;
+    --dusk: #8b5a8a;
+    --sky: #4a7fa5;
+    --mist: rgba(245,240,232,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--amber);
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, background 0.3s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    position: fixed; width: 40px; height: 40px;
+    border-radius: 50%; border: 1px solid rgba(232,169,77,0.4);
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.25s ease, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  /* ── CANVAS ── */
+  #bg-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100; padding: 28px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    mix-blend-mode: normal;
+    transition: background 0.6s;
+  }
+  nav.scrolled { background: rgba(13,11,15,0.85); backdrop-filter: blur(20px); }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; letter-spacing: 0.12em;
+    color: var(--amber); opacity: 0.9;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--cream); opacity: 0.55; text-decoration: none;
+    transition: opacity 0.3s;
+  }
+  .nav-links a:hover { opacity: 1; }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; flex-direction: column; gap: 0;
+    overflow: hidden;
+  }
+  .hero-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-style: italic; font-weight: 300;
+    letter-spacing: 0.08em; color: rgba(245,240,232,0.5);
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 1s ease 0.5s forwards;
+    line-height: 2.2;
+  }
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 300; line-height: 1.05;
+    letter-spacing: -0.01em;
+    opacity: 0; transform: translateY(30px);
+    animation: fadeUp 1.2s ease 1.4s forwards;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--amber) 50%, var(--dusk) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-role {
+    font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--amber); opacity: 0;
+    animation: fadeUp 1s ease 2.3s forwards;
+    margin-top: 24px;
+  }
+  .scroll-cue {
+    position: absolute; bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: fadeUp 1s ease 3s forwards;
+  }
+  .scroll-cue span {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+  }
+  .scroll-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(to bottom, var(--amber), transparent);
+    animation: scrollPulse 2s ease-in-out infinite 3.5s;
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ── CHAPTER WRAPPER ── */
+  .chapter {
+    min-height: 100vh; padding: 120px 60px;
+    display: flex; align-items: center;
+  }
+  .chapter-inner { max-width: 1100px; margin: 0 auto; width: 100%; }
+
+  /* chapter labels */
+  .chapter-label {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--amber); opacity: 0.6; margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .chapter-label::before {
+    content: ''; width: 40px; height: 1px; background: var(--amber); opacity: 0.6;
+  }
+
+  /* ── CH1 – BEGINNING ── */
+  #chapter1 { background: transparent; }
+  .narrative-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 300; line-height: 1.4;
+    max-width: 780px;
+  }
+  .narrative-text em { font-style: italic; color: var(--amber); }
+  .narrative-sub {
+    margin-top: 40px; font-size: 1rem; line-height: 1.9;
+    color: rgba(245,240,232,0.55); max-width: 560px;
+  }
+
+  /* ── CH2 – BUILDER ── */
+  #chapter2 { background: rgba(58,45,92,0.08); }
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+    gap: 28px; margin-top: 60px;
+  }
+  .project-card {
+    border: 1px solid rgba(232,169,77,0.12);
+    padding: 40px 36px; border-radius: 4px;
+    background: rgba(13,11,15,0.6);
+    backdrop-filter: blur(10px);
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1),
+                border-color 0.4s, box-shadow 0.5s;
+    position: relative; overflow: hidden;
+  }
+  .project-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(232,169,77,0.05), transparent);
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .project-card:hover { transform: translateY(-8px); border-color: rgba(232,169,77,0.35); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+  .project-card:hover::before { opacity: 1; }
+  .project-num { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--amber); opacity: 0.5; margin-bottom: 20px; }
+  .project-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 16px; }
+  .project-desc { font-size: 0.88rem; line-height: 1.75; color: rgba(245,240,232,0.55); }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .tag {
+    font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 20px;
+    border: 1px solid rgba(232,169,77,0.2);
+    color: rgba(245,240,232,0.4);
+  }
+
+  /* ── CH3 – SHIFT ── */
+  #chapter3 { overflow: hidden; }
+  .shift-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 300; line-height: 1.2;
+    background: linear-gradient(135deg, var(--cream), var(--amber), var(--ember));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .shift-desc { margin-top: 40px; max-width: 600px; font-size: 1rem; line-height: 1.9; color: rgba(245,240,232,0.5); }
+
+  /* ── CH4 – IMPACT / CAMPAIGNS ── */
+  #chapter4 { background: rgba(196,94,46,0.04); }
+  .impact-header { margin-bottom: 60px; }
+  .counter-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px; border: 1px solid rgba(232,169,77,0.1);
+    border-radius: 4px; overflow: hidden; margin-bottom: 60px;
+  }
+  .counter-cell {
+    padding: 40px 30px; background: rgba(13,11,15,0.7);
+    text-align: center;
+  }
+  .counter-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300;
+    color: var(--amber); line-height: 1;
+  }
+  .counter-label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.4); margin-top: 10px; }
+  .campaigns-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .campaign-card {
+    padding: 32px; border-left: 2px solid rgba(232,169,77,0.25);
+    background: rgba(13,11,15,0.5); transition: border-color 0.3s, background 0.3s;
+  }
+  .campaign-card:hover { border-color: var(--amber); background: rgba(232,169,77,0.04); }
+  .campaign-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 10px; }
+  .campaign-stat { font-size: 0.8rem; color: var(--amber); margin-bottom: 8px; }
+  .campaign-desc { font-size: 0.82rem; line-height: 1.7; color: rgba(245,240,232,0.45); }
+
+  /* ── CH5 – NOW ── */
+  #chapter5 { }
+  .pillars { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; margin-top: 60px; }
+  .pillar { text-align: center; }
+  .pillar-icon { width: 60px; height: 60px; margin: 0 auto 24px; position: relative; }
+  .pillar-icon svg { width: 100%; height: 100%; }
+  .pillar-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 12px; }
+  .pillar-desc { font-size: 0.82rem; line-height: 1.75; color: rgba(245,240,232,0.45); }
+
+  /* ── SKILLS ── */
+  #skills { }
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 60px; }
+  .skill-category h3 {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 20px;
+  }
+  .skill-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .skill-item {
+    font-size: 0.82rem; padding: 8px 16px;
+    border: 1px solid rgba(245,240,232,0.1);
+    border-radius: 3px; color: rgba(245,240,232,0.6);
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
+  }
+  .skill-item:hover { border-color: rgba(232,169,77,0.4); color: var(--cream); background: rgba(232,169,77,0.05); }
+
+  /* ── PHILOSOPHY ── */
+  #philosophy {
+    min-height: 70vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; flex-direction: column;
+    background: transparent; padding: 80px 40px;
+  }
+  .philosophy-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 300; line-height: 1.3;
+    max-width: 900px;
+  }
+  .philosophy-text span { font-style: italic; color: var(--amber); }
+  .philosophy-sub { margin-top: 30px; font-size: 0.9rem; color: rgba(245,240,232,0.35); letter-spacing: 0.1em; }
+
+  /* ── CTA ── */
+  #cta {
+    min-height: 80vh; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center; padding: 80px 40px;
+    background: transparent;
+  }
+  .cta-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 6vw, 5.5rem);
+    font-weight: 300; line-height: 1.15;
+    margin-bottom: 48px;
+  }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 40px; border: 1px solid rgba(232,169,77,0.5);
+    color: var(--cream); text-decoration: none; font-size: 0.8rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    transition: background 0.4s, border-color 0.4s, gap 0.3s;
+    border-radius: 2px;
+    background: rgba(232,169,77,0.06);
+  }
+  .cta-btn:hover { background: rgba(232,169,77,0.15); border-color: var(--amber); gap: 20px; }
+  .cta-links { display: flex; gap: 32px; margin-top: 48px; justify-content: center; }
+  .cta-link {
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(245,240,232,0.35); text-decoration: none;
+    transition: color 0.3s; padding-bottom: 2px;
+    border-bottom: 1px solid rgba(245,240,232,0.1);
+  }
+  .cta-link:hover { color: var(--amber); border-color: var(--amber); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 60px; border-top: 1px solid rgba(245,240,232,0.05);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.72rem; color: rgba(245,240,232,0.2);
+    position: relative; z-index: 1;
+  }
+
+  /* ── REVEAL ANIMATIONS ── */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1),
+                transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.35s; }
+  .reveal-delay-4 { transition-delay: 0.5s; }
+
+  /* ── DIVIDER ── */
+  .scene-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(232,169,77,0.2), transparent);
+    position: relative; z-index: 1; margin: 0 60px;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 24px 24px; }
+    .nav-links { display: none; }
+    .chapter { padding: 80px 24px; }
+    .campaigns-list { grid-template-columns: 1fr; }
+    .pillars { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .scene-divider { margin: 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- 3D Canvas Background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <div class="nav-logo">NSP</div>
+  <ul class="nav-links">
+    <li><a href="#chapter1">Story</a></li>
+    <li><a href="#chapter2">Work</a></li>
+    <li><a href="#chapter4">Impact</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#cta">Connect</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <p class="hero-tagline">
+    Every brand has a story.<br>I help it reach the right audience.
+  </p>
+  <h1 class="hero-name">Naga Sai<br>Chandra Prasad</h1>
+  <p class="hero-role">Digital Lead &nbsp;·&nbsp; Web Strategist &nbsp;·&nbsp; React Developer</p>
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CHAPTER 1 ── -->
+<section id="chapter1" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal">Chapter One — The Beginning</div>
+    <h2 class="narrative-text reveal reveal-delay-1">
+      Started with <em>curiosity</em> for how<br>things work on the web.
+    </h2>
+    <p class="narrative-sub reveal reveal-delay-2">
+      A Computer Science graduate from Amity University, I spent the early years pulling apart how the internet was stitched together — every tag, every function, every render cycle. That obsession with understanding led to building, and building led to something bigger: the desire to make things <em>matter</em>.
+    </p>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CHAPTER 2 ── -->
+<section id="chapter2" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal">Chapter Two — The Builder</div>
+    <h2 class="narrative-text reveal reveal-delay-1">Precision in every<br>line of code.</h2>
+    <div class="projects-grid">
+      <div class="project-card reveal reveal-delay-1">
+        <div class="project-num">01</div>
+        <div class="project-title">Coin Math</div>
+        <p class="project-desc">A financial tool for calculations, conversions, and planning — built with a user-centric interface and real-time computation logic.</p>
+        <div class="project-tags"><span class="tag">React.js</span><span class="tag">JavaScript</span><span class="tag">UI/UX</span></div>
+      </div>
+      <div class="project-card reveal reveal-delay-2">
+        <div class="project-num">02</div>
+        <div class="project-title">CHS Dynamic Website</div>
+        <p class="project-desc">A fully responsive, API-integrated dynamic platform for CHS Software Solutions — built from ground up with modern UI/UX principles.</p>
+        <div class="project-tags"><span class="tag">React.js</span><span class="tag">REST API</span><span class="tag">Bootstrap</span></div>
+      </div>
+      <div class="project-card reveal reveal-delay-3">
+        <div class="project-num">03</div>
+        <div class="project-title">D3 Sarada Service Society</div>
+        <p class="project-desc">End-to-end website design, development and deployment for a non-profit — including UX strategy, visual design, and hosting.</p>
+        <div class="project-tags"><span class="tag">Full Stack</span><span class="tag">Design</span><span class="tag">Deployment</span></div>
+      </div>
+      <div class="project-card reveal reveal-delay-4">
+        <div class="project-num">04</div>
+        <div class="project-title">Tenali Double Horse — Corporate Site</div>
+        <p class="project-desc">Leading end-to-end development of a corporate platform showcasing brand portfolio, product lines, and global presence with performance-first architecture.</p>
+        <div class="project-tags"><span class="tag">React</span><span class="tag">SEO</span><span class="tag">E-commerce</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CHAPTER 3 ── -->
+<section id="chapter3" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal">Chapter Three — The Shift</div>
+    <h2 class="shift-quote reveal reveal-delay-1">Building was not<br>enough. I wanted<br>to <em style="-webkit-text-fill-color:var(--amber);background:none;">scale</em> what I built.</h2>
+    <p class="shift-desc reveal reveal-delay-2">
+      The transition from developer to digital strategist wasn't a pivot — it was an evolution. Understanding both the technical substrate and the marketing layer means every decision is informed by the full picture: from load time to brand perception, from API response to campaign reach.
+    </p>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CHAPTER 4 ── -->
+<section id="chapter4" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal impact-header">Chapter Four — Real-World Impact</div>
+
+    <div class="counter-row reveal reveal-delay-1">
+      <div class="counter-cell">
+        <div class="counter-number" data-target="4">0</div>
+        <div class="counter-label">Cr+ Instagram Reach</div>
+      </div>
+      <div class="counter-cell">
+        <div class="counter-number" data-target="2">0</div>
+        <div class="counter-label">Cr+ YouTube Reach</div>
+      </div>
+      <div class="counter-cell">
+        <div class="counter-number" data-target="7">0</div>
+        <div class="counter-label">Major Campaigns Run</div>
+      </div>
+      <div class="counter-cell">
+        <div class="counter-number" data-target="1200">0</div>
+        <div class="counter-label">Followers Grown (Single Campaign)</div>
+      </div>
+    </div>
+
+    <div class="campaigns-list reveal reveal-delay-2">
+      <div class="campaign-card">
+        <div class="campaign-title">International Women's Day</div>
+        <div class="campaign-stat">4+ Cr Instagram · 2+ Cr YouTube · 1000+ new followers</div>
+        <p class="campaign-desc">Multi-platform campaign that redefined the brand's digital presence through emotional storytelling and targeted content strategy.</p>
+      </div>
+      <div class="campaign-card">
+        <div class="campaign-title">Ashada Gorintaku</div>
+        <div class="campaign-stat">~2.95 Cr reach · 52K+ likes · 559+ entries</div>
+        <p class="campaign-desc">Festival-driven engagement campaign with deep community participation and organic growth across Instagram.</p>
+      </div>
+      <div class="campaign-card">
+        <div class="campaign-title">Independence Day</div>
+        <div class="campaign-stat">33+ Lakh users · 100% coupon redemption</div>
+        <p class="campaign-desc">Performance-driven campaign with full conversion — every coupon redeemed, every reach converted to action.</p>
+      </div>
+      <div class="campaign-card">
+        <div class="campaign-title">Rakhi Campaign</div>
+        <div class="campaign-stat">380+ participants · Google reviews 3741 → 4017</div>
+        <p class="campaign-desc">Community activation that built brand trust through real customer engagement and review generation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CHAPTER 5 ── -->
+<section id="chapter5" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal">Chapter Five — What I Do Now</div>
+    <h2 class="narrative-text reveal reveal-delay-1">Strategy. Code.<br><em>Growth.</em></h2>
+    <div class="pillars">
+      <div class="pillar reveal reveal-delay-1">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="29" stroke="rgba(232,169,77,0.3)" stroke-width="1"/>
+            <path d="M20 35 L30 20 L40 35" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M23 30 L37 30" stroke="rgba(232,169,77,0.4)" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="pillar-name">Strategy</div>
+        <p class="pillar-desc">Performance marketing across Meta & Google, e-commerce presence on Amazon, Blinkit, Zepto. Data-driven campaigns with measurable outcomes.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-2">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="29" stroke="rgba(232,169,77,0.3)" stroke-width="1"/>
+            <path d="M22 25 L18 30 L22 35" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M38 25 L42 30 L38 35" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M33 22 L27 38" stroke="rgba(232,169,77,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="pillar-name">Development</div>
+        <p class="pillar-desc">React.js, TypeScript, Python/Django. Building scalable, performant web experiences that bridge the gap between engineering and design.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-3">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="29" stroke="rgba(232,169,77,0.3)" stroke-width="1"/>
+            <path d="M18 38 L24 28 L30 32 L36 22 L42 18" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="42" cy="18" r="3" fill="var(--amber)" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="pillar-name">Growth</div>
+        <p class="pillar-desc">SEO, brand building, content marketing, and customer acquisition. Turning digital presence into measurable business impact.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── SKILLS ── -->
+<section id="skills" class="chapter">
+  <div class="chapter-inner">
+    <div class="chapter-label reveal">Craft & Tools</div>
+    <div class="skills-grid">
+      <div class="skill-category reveal reveal-delay-1">
+        <h3>Digital & Marketing</h3>
+        <div class="skill-list">
+          <span class="skill-item">SEO</span>
+          <span class="skill-item">Meta Ads</span>
+          <span class="skill-item">Google Ads</span>
+          <span class="skill-item">Performance Marketing</span>
+          <span class="skill-item">E-commerce</span>
+          <span class="skill-item">Shopify</span>
+          <span class="skill-item">WordPress</span>
+          <span class="skill-item">Brand Building</span>
+          <span class="skill-item">Content Marketing</span>
+          <span class="skill-item">Analytics</span>
+          <span class="skill-item">Amazon</span>
+          <span class="skill-item">Blinkit / Zepto</span>
+        </div>
+      </div>
+      <div class="skill-category reveal reveal-delay-2">
+        <h3>Engineering</h3>
+        <div class="skill-list">
+          <span class="skill-item">React.js</span>
+          <span class="skill-item">TypeScript</span>
+          <span class="skill-item">JavaScript</span>
+          <span class="skill-item">HTML / CSS</span>
+          <span class="skill-item">Python</span>
+          <span class="skill-item">Django</span>
+          <span class="skill-item">SQL</span>
+          <span class="skill-item">Git</span>
+          <span class="skill-item">Bootstrap</span>
+          <span class="skill-item">REST APIs</span>
+          <span class="skill-item">UX Strategy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── PHILOSOPHY ── -->
+<section id="philosophy">
+  <div class="chapter-label reveal" style="justify-content:center;margin-bottom:36px;">Philosophy</div>
+  <h2 class="philosophy-text reveal reveal-delay-1">
+    Good products are <span>built.</span><br>Great products <span>grow.</span>
+  </h2>
+  <p class="philosophy-sub reveal reveal-delay-2">The intersection of craft and strategy is where I live.</p>
+</section>
+
+<div class="scene-divider"></div>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <h2 class="cta-headline reveal">Let's build<br>something<br><em style="font-style:italic;color:var(--amber);">meaningful.</em></h2>
+  <a href="mailto:nagasai1602@gmail.com" class="cta-btn reveal reveal-delay-1">
+    → &nbsp; Contact Me
+  </a>
+  <div class="cta-links reveal reveal-delay-2">
+    <a href="mailto:nagasai1602@gmail.com" class="cta-link">nagasai1602@gmail.com</a>
+    <a href="https://www.linkedin.com/in/naga-sai-polisetty-487063261/" target="_blank" class="cta-link">LinkedIn</a>
+    <a href="tel:+919494251947" class="cta-link">+91 9494 251947</a>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 Naga Sai Chandra Prasad Polisetty</span>
+  <span>Digital Lead · Web Strategist · React Developer</span>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+function animRing() {
+  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a,button,.project-card,.campaign-card,.skill-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width='60px'; ring.style.height='60px'; ring.style.opacity='0.7'; });
+  el.addEventListener('mouseleave', () => { ring.style.width='40px'; ring.style.height='40px'; ring.style.opacity='1'; });
+});
+
+// ── NAV SCROLL ──
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── REVEAL ON SCROLL ──
+const reveals = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.12 });
+reveals.forEach(r => revealObs.observe(r));
+
+// ── ANIMATED COUNTERS ──
+const counters = document.querySelectorAll('.counter-number[data-target]');
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting && !e.target.dataset.animated) {
+      e.target.dataset.animated = '1';
+      const target = +e.target.dataset.target;
+      const duration = 1800;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min((now-start)/duration, 1);
+        const ease = 1 - Math.pow(1-p, 3);
+        const val = target < 100 ? (ease * target).toFixed(1) : Math.round(ease * target);
+        e.target.textContent = val + (target >= 1000 ? '+' : target < 10 ? '+' : '+');
+        if(p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => counterObs.observe(c));
+
+// ── 3D PARTICLE CANVAS ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], stars = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Stars
+for(let i = 0; i < 160; i++) {
+  stars.push({ x: Math.random()*2000, y: Math.random()*2000, r: Math.random()*0.8+0.1, a: Math.random() });
+}
+
+// Floating orbs
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * 2000;
+    this.y = Math.random() * 2000;
+    this.z = Math.random() * 800 + 200;
+    this.vx = (Math.random()-0.5) * 0.3;
+    this.vy = (Math.random()-0.5) * 0.2;
+    this.vz = (Math.random()-0.5) * 0.5;
+    const colors = ['rgba(232,169,77,', 'rgba(196,94,46,', 'rgba(139,90,138,', 'rgba(74,127,165,'];
+    this.color = colors[Math.floor(Math.random()*colors.length)];
+    this.size = Math.random() * 2 + 0.5;
+    this.life = Math.random();
+    this.decay = 0.0003 + Math.random() * 0.0003;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy; this.z += this.vz;
+    this.life -= this.decay;
+    if(this.life <= 0 || this.z < 10 || this.z > 1200) this.reset();
+  }
+  draw() {
+    const fov = 600;
+    const scale = fov / this.z;
+    const px = (this.x - 1000) * scale + W/2;
+    const py = (this.y - 1000) * scale + H/2;
+    if(px < -50 || px > W+50 || py < -50 || py > H+50) return;
+    const s = this.size * scale;
+    const a = this.life * 0.5 * Math.min(scale*0.5, 1);
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(s, 0.3), 0, Math.PI*2);
+    ctx.fillStyle = this.color + a + ')';
+    ctx.fill();
+  }
+}
+
+for(let i = 0; i < 120; i++) particles.push(new Particle());
+
+// Nebula nodes for lines
+class Node {
+  constructor() {
+    this.x = Math.random() * W; this.y = Math.random() * H;
+    this.vx = (Math.random()-0.5) * 0.15; this.vy = (Math.random()-0.5) * 0.1;
+    this.r = Math.random() * 1.5 + 0.5;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if(this.x < 0 || this.x > W) this.vx *= -1;
+    if(this.y < 0 || this.y > H) this.vy *= -1;
+  }
+}
+const nodes = [];
+for(let i = 0; i < 40; i++) nodes.push(new Node());
+
+// Scroll parallax offset
+let scrollY = 0;
+window.addEventListener('scroll', () => scrollY = window.scrollY);
+let mouseX = W/2, mouseY = H/2;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, W, H);
+
+  // Deep space gradient bg
+  const grd = ctx.createRadialGradient(W/2 + (mouseX-W/2)*0.02, H/2 + (mouseY-H/2)*0.02, 0, W/2, H/2, Math.max(W,H)*0.85);
+  grd.addColorStop(0, 'rgba(30,18,45,0.95)');
+  grd.addColorStop(0.5, 'rgba(13,11,20,0.97)');
+  grd.addColorStop(1, 'rgba(5,4,10,1)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  t += 0.003;
+
+  // Nebula glow
+  const nx = W/2 + Math.sin(t*0.5)*100 + (mouseX-W/2)*0.06;
+  const ny = H/2 + Math.cos(t*0.4)*80 + (mouseY-H/2)*0.04 - scrollY*0.15;
+  const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, W*0.4);
+  ng.addColorStop(0, 'rgba(58,45,92,0.18)');
+  ng.addColorStop(0.4, 'rgba(196,94,46,0.04)');
+  ng.addColorStop(1, 'transparent');
+  ctx.fillStyle = ng;
+  ctx.fillRect(0, 0, W, H);
+
+  const ng2x = W*0.3 + Math.cos(t*0.3)*120 + (mouseX-W/2)*0.04;
+  const ng2y = H*0.7 + Math.sin(t*0.35)*90 - scrollY*0.08;
+  const ng2 = ctx.createRadialGradient(ng2x, ng2y, 0, ng2x, ng2y, W*0.35);
+  ng2.addColorStop(0, 'rgba(232,169,77,0.07)');
+  ng2.addColorStop(0.5, 'rgba(196,94,46,0.03)');
+  ng2.addColorStop(1, 'transparent');
+  ctx.fillStyle = ng2;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  const stOff = scrollY * 0.02;
+  stars.forEach(s => {
+    const sx = (s.x % W); const sy = ((s.y + stOff) % H);
+    const pulse = s.a * (0.5 + 0.5 * Math.sin(t * 1.5 + s.x));
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(245,240,232,${pulse * 0.6})`;
+    ctx.fill();
+  });
+
+  // 3D particles
+  particles.forEach(p => { p.update(); p.draw(); });
+
+  // Network nodes
+  nodes.forEach(n => n.update());
+  for(let i = 0; i < nodes.length; i++) {
+    for(let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist < 160) {
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y - scrollY*0.03);
+        ctx.lineTo(nodes[j].x, nodes[j].y - scrollY*0.03);
+        ctx.strokeStyle = `rgba(232,169,77,${(1-dist/160)*0.06})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Horizon line (cinematic)
+  const horizonY = H * 0.55 - scrollY * 0.3;
+  const hg = ctx.createLinearGradient(0, horizonY-2, 0, horizonY+2);
+  hg.addColorStop(0, 'transparent');
+  hg.addColorStop(0.5, `rgba(232,169,77,${0.05 * (1 - Math.abs(scrollY)/2000)})`);
+  hg.addColorStop(1, 'transparent');
+  ctx.fillStyle = hg;
+  ctx.fillRect(0, horizonY-2, W, 4);
+}
+animate();
+</script>
+</body>
+</html>
